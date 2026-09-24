@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CramPlan - App</title>
+<style>
+  :root { --bg:#0f1408; --card:#18210e; --edge:#2b3a1a; --ink:#eef4e2; --dim:#a4b390; --accent:#a3d94c; --good:#7dc95e; --warn:#ffcf3c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; padding:28px 18px 60px; }
+  .wrap { max-width:780px; margin:0 auto; }
+  header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:22px; }
+  h1 { font-size:1.5rem; } h1 .c { color:var(--accent); }
+  a.home { color:var(--dim); text-decoration:none; font-size:0.9rem; }
+  section { background:var(--card); border:1px solid var(--edge); border-radius:14px; padding:20px; margin-bottom:20px; }
+  h2 { font-size:1.05rem; margin-bottom:14px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:110px; }
+  label { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.6px; color:var(--dim); }
+  input, select, button { font:inherit; border-radius:8px; border:1px solid var(--edge); padding:10px 12px; background:#0f1408; color:var(--ink); }
+  input:focus, select:focus { outline:none; border-color:var(--accent); }
+  button { cursor:pointer; background:var(--accent); border:none; color:#1c2b05; font-weight:700; }
+  button:hover { filter:brightness(1.1); }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; }
+  .stat { background:#0f1408; border:1px solid var(--edge); border-radius:10px; padding:14px; }
+  .stat .v { font-size:1.35rem; font-weight:700; color:var(--accent); }
+  .stat .l { color:var(--dim); font-size:0.78rem; margin-top:3px; }
+  .topic { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--edge); flex-wrap:wrap; }
+  .topic:last-child { border-bottom:none; }
+  .topic .name { font-weight:600; min-width:120px; flex:1; }
+  .topic select { padding:6px 8px; font-size:0.85rem; }
+  .topic button.act { background:transparent; border:1px solid var(--edge); color:var(--dim); font-weight:400; font-size:0.8rem; padding:5px 10px; }
+  .topic button.act:hover { color:var(--ink); border-color:var(--accent); }
+  .plan-item { display:flex; align-items:center; gap:12px; background:#0f1408; border:1px solid var(--edge); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+  .plan-item.done { opacity:0.5; }
+  .plan-item.done .pname { text-decoration:line-through; }
+  .plan-item .check { width:22px; height:22px; border-radius:6px; border:2px solid var(--accent); background:transparent; padding:0; display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:800; }
+  .plan-item.done .check { background:var(--accent); color:#1c2b05; }
+  .plan-item .pname { flex:1; font-weight:600; }
+  .plan-item .pconf { color:var(--dim); font-size:0.82rem; }
+  .empty { color:var(--dim); text-align:center; padding:16px; font-size:0.95rem; }
+  .err { color:var(--warn); font-size:0.85rem; margin-top:8px; min-height:1em; }
+  .note { color:var(--dim); font-size:0.85rem; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Cram<span class="c">Plan</span></h1>
+    <a class="home" href="index.html">&larr; Home</a>
+  </header>
+
+  <section>
+    <h2>The exam</h2>
+    <div class="row">
+      <div class="field" style="flex:2"><label>Exam name</label><input id="f-exam" type="text" placeholder="e.g. Biology final" maxlength="50"></div>
+      <div class="field"><label>Exam date</label><input id="f-date" type="date"></div>
+      <div class="field"><label>Sessions / day</label><input id="f-spd" type="number" min="1" max="10" step="1" value="3"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Topics and confidence</h2>
+    <div class="row">
+      <div class="field" style="flex:2"><label>Topic</label><input id="f-topic" type="text" placeholder="e.g. Krebs cycle" maxlength="50"></div>
+      <div class="field"><label>Confidence</label>
+        <select id="f-conf"><option value="1">1 - lost</option><option value="2">2 - shaky</option><option value="3" selected>3 - okay</option><option value="4">4 - good</option><option value="5">5 - nailed it</option></select>
+      </div>
+      <div class="field" style="flex:0 0 auto; justify-content:flex-end"><button id="f-add">Add</button></div>
+    </div>
+    <div class="err" id="f-err"></div>
+    <div id="topics" style="margin-top:10px"><div class="empty">No topics yet.</div></div>
+  </section>
+
+  <section>
+    <h2>Overview</h2>
+    <div class="stats">
+      <div class="stat"><div class="v" id="s-days">-</div><div class="l">days until exam</div></div>
+      <div class="stat"><div class="v" id="s-sessions">-</div><div class="l">total sessions allocated</div></div>
+      <div class="stat"><div class="v" id="s-ready">-</div><div class="l">readiness score</div></div>
+      <div class="stat"><div class="v" id="s-prog">-</div><div class="l">today's progress</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Today's plan</h2>
+    <div id="plan"><div class="empty">Add topics and set an exam date to get today's plan.</div></div>
+    <div class="note">The plan re-weights itself every time you change a confidence rating - as weak topics improve, the schedule follows.</div>
+  </section>
+</div>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  var EXAM = 'cramplan-exam';
+  var TOPICS = 'cramplan-topics';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function loadExam() { try { return JSON.parse(localStorage.getItem(EXAM)) || {}; } catch (e) { return {}; } }
+  function saveExam(x) { localStorage.setItem(EXAM, JSON.stringify(x)); }
+  function loadTopics() { try { return JSON.parse(localStorage.getItem(TOPICS)) || []; } catch (e) { return []; } }
+  function saveTopics(t) { localStorage.setItem(TOPICS, JSON.stringify(t)); }
+
+  var exam = loadExam();
+  if (exam.name) $('f-exam').value = exam.name;
+  if (exam.date) $('f-date').value = exam.date;
+  if (exam.spd) $('f-spd').value = exam.spd;
+
+  function render() {
+    var ex = { name: $('f-exam').value.trim(), date: $('f-date').value, spd: Number($('f-spd').value) || 3 };
+    saveExam(ex);
+    var topics = loadTopics();
+    var now = new Date();
+    var days = ex.date ? CramEngine.daysLeft(ex.date, now) : null;
+
+    $('s-days').textContent = days === null ? '-' : (days < 0 ? 'passed' : days);
+    var slots = days === null ? 0 : CramEngine.totalSlots(days, ex.spd);
+    $('s-sessions').textContent = topics.length ? slots : '-';
+    $('s-ready').textContent = topics.length ? CramEngine.readiness(topics) + '%' : '-';
+
+    var key = CramEngine.dateKey(now);
+    var plan = (days !== null && topics.length) ? CramEngine.todayPlan(topics, days, ex.spd) : [];
+    var prog = CramEngine.todayProgress(plan, topics, key);
+    $('s-prog').textContent = plan.length ? prog.done + '/' + prog.total : '-';
+
+    var tEl = $('topics');
+    tEl.innerHTML = '';
+    if (!topics.length) tEl.innerHTML = '<div class="empty">No topics yet.</div>';
+    topics.forEach(function (t) {
+      var row = document.createElement('div');
+      row.className = 'topic';
+      row.innerHTML = '<span class="name"></span>' +
+        '<select><option value="1">1 - lost</option><option value="2">2 - shaky</option><option value="3">3 - okay</option><option value="4">4 - good</option><option value="5">5 - nailed it</option></select>' +
+        '<button class="act">Remove</button>';
+      row.querySelector('.name').textContent = t.name;
+      var sel = row.querySelector('select');
+      sel.value = String(t.confidence);
+      sel.addEventListener('change', function () {
+        var all = loadTopics();
+        all.forEach(function (x) { if (x.id === t.id) x.confidence = Number(sel.value); });
+        saveTopics(all);
+        render();
+      });
+      row.querySelector('button').addEventListener('click', function () {
+        saveTopics(loadTopics().filter(function (x) { return x.id !== t.id; }));
+        render();
+      });
+      tEl.appendChild(row);
+    });
+
+    var pEl = $('plan');
+    pEl.innerHTML = '';
+    if (!plan.length) {
+      pEl.innerHTML = '<div class="empty">' + (topics.length ? 'Set an exam date to get a plan.' : 'Add topics and set an exam date to get a plan.') + '</div>';
+    }
+    plan.forEach(function (p) {
+      var t = null;
+      topics.forEach(function (x) { if (x.id === p.id) t = x; });
+      var isDone = t && t.done && t.done.indexOf(key) !== -1;
+      var row = document.createElement('div');
+      row.className = 'plan-item' + (isDone ? ' done' : '');
+      row.innerHTML = '<button class="check">' + (isDone ? '&#10003;' : '') + '</button><span class="pname"></span><span class="pconf">confidence ' + (t ? t.confidence : '?') + '/5</span>';
+      row.querySelector('.pname').textContent = p.name;
+      row.querySelector('.check').addEventListener('click', function () {
+        var all = loadTopics();
+        all.forEach(function (x) {
+          if (x.id === p.id) {
+            x.done = x.done || [];
+            var i = x.done.indexOf(key);
+            if (i === -1) x.done.push(key); else x.done.splice(i, 1);
+          }
+        });
+        saveTopics(all);
+        render();
+      });
+      pEl.appendChild(row);
+    });
+  }
+
+  $('f-add').addEventListener('click', function () {
+    var name = $('f-topic').value.trim();
+    var err = $('f-err');
+    err.textContent = '';
+    if (!name) { err.textContent = 'Name the topic.'; return; }
+    var topics = loadTopics();
+    topics.push({ id: 't' + Date.now() + Math.floor(Math.random() * 1000), name: name, confidence: Number($('f-conf').value), done: [] });
+    saveTopics(topics);
+    $('f-topic').value = '';
+    render();
+  });
+
+  ['f-exam', 'f-date', 'f-spd'].forEach(function (id) { $(id).addEventListener('change', render); });
+  render();
+})();
+</script>
+</body>
+</html>
