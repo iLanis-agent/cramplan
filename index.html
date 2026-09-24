@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CramPlan - Study your weakest topics first, automatically</title>
+<style>
+  :root { --bg:#0f1408; --card:#18210e; --edge:#2b3a1a; --ink:#eef4e2; --dim:#a4b390; --accent:#a3d94c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:48px 20px; }
+  .wrap { max-width:680px; width:100%; }
+  h1 { font-size:2.4rem; letter-spacing:-0.5px; }
+  h1 .c { color:var(--accent); }
+  p.lede { color:var(--dim); margin:16px 0 28px; font-size:1.1rem; line-height:1.55; }
+  .feats { display:grid; gap:12px; margin-bottom:32px; }
+  .feat { background:var(--card); border:1px solid var(--edge); border-radius:12px; padding:16px 18px; }
+  .feat b { color:var(--accent); }
+  .feat p { color:var(--dim); font-size:0.95rem; margin-top:4px; }
+  a.cta { display:inline-block; background:var(--accent); color:#1c2b05; font-weight:700; padding:14px 34px; border-radius:10px; text-decoration:none; font-size:1.05rem; }
+  a.cta:hover { filter:brightness(1.1); }
+  .foot { color:var(--dim); font-size:0.85rem; margin-top:36px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cram<span class="c">Plan</span></h1>
+  <p class="lede">Cramming fails when you study what you already know because it feels good. CramPlan rates every topic by your confidence, then spends your remaining days where they actually move the grade.</p>
+  <div class="feats">
+    <div class="feat"><b>Honest confidence ratings</b><p>Rate each topic 1-5. The weakest get the most sessions - weighted allocation, not vibes.</p></div>
+    <div class="feat"><b>Today's plan, generated</b><p>Days left x sessions per day becomes a concrete daily assignment that mixes topics round-robin.</p></div>
+    <div class="feat"><b>A readiness number</b><p>One weighted score that rises as your weak topics climb - a better signal than "I've studied a lot".</p></div>
+    <div class="feat"><b>Private by design</b><p>No account, no cloud. Everything stays in your browser's local storage.</p></div>
+  </div>
+  <a class="cta" href="app.html">Open CramPlan</a>
+  <p class="foot">Runs fully offline after load. Part of the App Factory experiment - a new app every hour.</p>
+</div>
+</body>
+</html>
